@@ -11,6 +11,10 @@
 		E7A85DE5296DC5C300A7CED7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7A85DE4296DC5C300A7CED7 /* ContentView.swift */; };
 		E7A85DE7296DC5C500A7CED7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E7A85DE6296DC5C500A7CED7 /* Assets.xcassets */; };
 		E7A85DEA296DC5C500A7CED7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E7A85DE9296DC5C500A7CED7 /* Preview Assets.xcassets */; };
+		E7A85DF1296DC9AD00A7CED7 /* AssetItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7A85DF0296DC9AD00A7CED7 /* AssetItem.swift */; };
+		E7A85DF5296DCAC400A7CED7 /* PHCameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7A85DF2296DCAC300A7CED7 /* PHCameraView.swift */; };
+		E7A85DF6296DCAC400A7CED7 /* PHCameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7A85DF3296DCAC300A7CED7 /* PHCameraPreview.swift */; };
+		E7A85DF7296DCAC400A7CED7 /* PHCameraViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7A85DF4296DCAC300A7CED7 /* PHCameraViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +23,10 @@
 		E7A85DE4296DC5C300A7CED7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E7A85DE6296DC5C500A7CED7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E7A85DE9296DC5C500A7CED7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		E7A85DF0296DC9AD00A7CED7 /* AssetItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetItem.swift; sourceTree = "<group>"; };
+		E7A85DF2296DCAC300A7CED7 /* PHCameraView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PHCameraView.swift; sourceTree = "<group>"; };
+		E7A85DF3296DCAC300A7CED7 /* PHCameraPreview.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PHCameraPreview.swift; sourceTree = "<group>"; };
+		E7A85DF4296DCAC300A7CED7 /* PHCameraViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PHCameraViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,6 +61,10 @@
 			children = (
 				E7A85DE2296DC5C300A7CED7 /* LiveEffectsCameraApp.swift */,
 				E7A85DE4296DC5C300A7CED7 /* ContentView.swift */,
+				E7A85DF0296DC9AD00A7CED7 /* AssetItem.swift */,
+				E7A85DF3296DCAC300A7CED7 /* PHCameraPreview.swift */,
+				E7A85DF2296DCAC300A7CED7 /* PHCameraView.swift */,
+				E7A85DF4296DCAC300A7CED7 /* PHCameraViewModel.swift */,
 				E7A85DE6296DC5C500A7CED7 /* Assets.xcassets */,
 				E7A85DE8296DC5C500A7CED7 /* Preview Content */,
 			);
@@ -138,6 +150,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				E7A85DE5296DC5C300A7CED7 /* ContentView.swift in Sources */,
+				E7A85DF6296DCAC400A7CED7 /* PHCameraPreview.swift in Sources */,
+				E7A85DF5296DCAC400A7CED7 /* PHCameraView.swift in Sources */,
+				E7A85DF7296DCAC400A7CED7 /* PHCameraViewModel.swift in Sources */,
+				E7A85DF1296DC9AD00A7CED7 /* AssetItem.swift in Sources */,
 				E7A85DE3296DC5C300A7CED7 /* LiveEffectsCameraApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -270,11 +286,14 @@
 				DEVELOPMENT_TEAM = ZKBU9ZVL37;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera Usage Description";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Microphone Usage Description";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -299,11 +318,14 @@
 				DEVELOPMENT_TEAM = ZKBU9ZVL37;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera Usage Description";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Microphone Usage Description";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
