@@ -17,12 +17,8 @@ struct PHCameraView: View {
     @Environment(\.managedObjectContext) private var viewContext
     
     @StateObject var model: PHCameraViewModel = PHCameraViewModel()
-    @StateObject var renderer: CameraRenderer = CameraRenderer()
     
     @State var isShowFIlters = false
-    
-    @State var warmths: Float = 0
-    @State var gamma: Float = 0
     
     @State var showVideoButton = true
     
@@ -31,7 +27,7 @@ struct PHCameraView: View {
             
             ZStack(alignment: .top){
                 if model.isRunning {
-                    PHCameraPreview(renderer: renderer)
+                    PHCameraPreview(renderer: model)
                         .frame(width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.width*16/9, alignment: .center)
                         .scaleEffect(x: model.position == .front ? -1 : 1)
                 }
@@ -136,9 +132,6 @@ struct PHCameraView: View {
         }
         .ignoresSafeArea()
         .preferredColorScheme(.dark)
-        .onAppear{
-            model.renderer = renderer
-        }
         
         .onChange(of: model.duration) { newValue in
             if newValue % 2 == 1 { withAnimation(.easeInOut(duration: 0.125)) { showVideoButton = false } }
@@ -147,7 +140,6 @@ struct PHCameraView: View {
         }
         .onDisappear{
             model.stopSession()
-            model.renderer = nil
             model.cancellable.removeAll()
         }
         
@@ -172,18 +164,12 @@ struct PHCameraView: View {
     
     var filterPanel: some View {
         VStack(alignment: .leading, spacing: 8) {
-            PHSliderH(value: $gamma, center: .constant(0), title: "GAMMA", opacity: .constant(1), id: .constant(""), from: -100, to: 100)
-            PHSliderH(value: $warmths, center: .constant(0), title: "WARMTH", opacity: .constant(1), id: .constant(""), from: -100, to: 100)
+            PHSliderH(value: $model.gamma, center: .constant(0), title: "GAMMA", opacity: .constant(1), id: .constant(""), from: -100, to: 100)
+            PHSliderH(value: $model.warmth, center: .constant(0), title: "WARMTH", opacity: .constant(1), id: .constant(""), from: -100, to: 100)
         }
         .padding(.vertical, 8)
         .background( Color.white.opacity(0.5) )
         
-        .onChange(of: gamma) { newValue in
-            renderer.gamma = newValue
-        }
-        .onChange(of: warmths) { newValue in
-            renderer.warmth = newValue
-        }
     }
     
     
