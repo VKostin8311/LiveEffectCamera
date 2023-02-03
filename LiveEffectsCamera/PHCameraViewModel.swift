@@ -11,8 +11,8 @@ import CoreMotion
 import SwiftUI
 import MetalKit
 
-//
-class PHCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
+
+class PHCameraViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
     
     // Authorization status
     @Published var cameraAuthStatus = AVCaptureDevice.authorizationStatus(for: .video)
@@ -49,7 +49,7 @@ class PHCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelega
     private var lastFrameTimeStamp: CMTime = .zero
     private var firstFrameTimeStamp: CMTime = .zero
     
-    private var mtkView: MTKView?
+    var mtkView: MTKView?
     private var buffer: CMSampleBuffer?
     private var videoWriter: VideoWriter?
 
@@ -151,7 +151,7 @@ class PHCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelega
     }
     
     enum CaptureState {
-        case idle, capturing, ending
+        case idle, start, starting, writing, ending, end
     }
     
     func getAvaliableBackDevices() -> [AVCaptureDevice.DeviceType] {
@@ -289,19 +289,14 @@ class PHCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelega
         
         if self.session.isRunning {
             
-            self.isRunning = false
-            if self.captureState == .capturing {
-                DispatchQueue.main.async { self.captureState = .ending }
-                
-                self.videoWriter?.endWriting() { result in
-                    guard result != nil else { return }
-                    self.captureState = .idle
-                    self.videoWriter = nil
-                }
-                
+            DispatchQueue.main.async {
+                self.isRunning = false
             }
-            self.session.stopRunning()
+            if self.captureState == .writing {
+                DispatchQueue.main.async { self.captureState = .end }
+            }
             
+            self.session.stopRunning()
         }
         
         self.session.inputs.forEach{self.session.removeInput($0)}
@@ -333,23 +328,28 @@ class PHCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelega
     }
     
     func capture() {
-        guard let buffer = buffer else { return }
-        let timeStamp = CMSampleBufferGetPresentationTimeStamp(buffer)
         
-        if self.captureState == .capturing {
-            DispatchQueue.main.async { self.captureState = .ending }
-            print("STATE: ENDING")
-            
-            self.videoWriter?.endWriting() { result in
-                print("HANDLER")
-                guard result != nil else { return }
-                DispatchQueue.main.async { self.captureState = .idle }
-                self.videoWriter = nil
-                
-            }
-            
-        } else {
-            
+        if captureState == .writing {
+            DispatchQueue.main.async { self.captureState = .end }
+        }
+        
+        if captureState == .idle {
+            DispatchQueue.main.async { self.captureState = .start }
+        }
+    }
+    
+    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        if self.captureState == .ending { return }
+        
+        if connection == videoOut.connection(with: .video) {
+            self.buffer = sampleBuffer
+            self.mtkView?.draw()
+        }
+        
+        switch self.captureState {
+        case .start:
+            DispatchQueue.main.async { self.captureState = .starting }
+            let timeStamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
             let fileName = UUID().uuidString
             let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("\(fileName).mov")
             guard let vSettings = self.videoOut.recommendedVideoSettingsForAssetWriter(writingTo: .mov) else { return }
@@ -359,8 +359,7 @@ class PHCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelega
                 
                 if self.videoWriter?.startWriting(at: timeStamp) == true {
                     self.firstFrameTimeStamp = timeStamp
-                    DispatchQueue.main.async { self.captureState = .capturing }
-                    print("Start writing")
+                    DispatchQueue.main.async { self.captureState = .writing }
                 } else {
                     print("Failed start writing")
                 }
@@ -368,25 +367,24 @@ class PHCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelega
                 print(error)
             }
             
-            
-        }
-    }
-    
-    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        
-        if connection == videoOut.connection(with: .video) {
-            self.buffer = sampleBuffer
-            self.mtkView?.draw()
-        }
-        
-        if self.captureState == .capturing {
+        case .end:
+            DispatchQueue.main.async { self.captureState = .ending }
+            self.videoWriter?.endWriting() { result in
+                print("HANDLER")
+                guard result != nil else { return }
+                DispatchQueue.main.async { self.captureState = .idle }
+                self.videoWriter = nil
+                
+            }
+        case .writing:
             let timestamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
             DispatchQueue.main.async { self.duration = Int(timestamp.seconds - self.firstFrameTimeStamp.seconds) }
             if connection == audioOut.connection(with: .audio) {
                 self.videoWriter?.addAudioSample(sampleBuffer)
             }
+        default: return
         }
-        
+
     }
 
 }
@@ -418,7 +416,7 @@ extension PHCameraViewModel: MTKViewDelegate {
             if let output = filter.outputImage { image = output }
         }
         
-        if self.captureState == .capturing {
+        if self.captureState == .writing {
             context.render(image, to: imageBuffer)
             self.videoWriter?.addVideoFrame(imageBuffer, at: CMSampleBufferGetPresentationTimeStamp(buffer))
             image = CIImage(cvImageBuffer: imageBuffer)

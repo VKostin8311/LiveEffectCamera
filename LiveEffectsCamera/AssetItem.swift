@@ -69,9 +69,7 @@ struct AssetItem: View {
             }
 
             DispatchQueue.main.async {
-                
                 let initImage = UIImage(cgImage: thumbnailImageRef, scale: 1.0, orientation: .up)
-                
                 completion(initImage)
             }
         }

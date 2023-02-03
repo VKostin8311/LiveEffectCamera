@@ -45,7 +45,7 @@ struct PHCameraView: View {
                     }
                     VStack(alignment: .center, spacing: 0) {
                         
-                        if model.captureState == .capturing {
+                        if model.captureState == .writing {
                             HStack(alignment: .center, spacing: 5) {
                                 Circle()
                                     .frame(width: 6, height: 6)
@@ -151,9 +151,9 @@ struct PHCameraView: View {
                 Circle()
                     .stroke(Color.white, lineWidth: 3)
                     .frame(width: 60, height: 60, alignment: .center)
-                Image(model.captureState == .capturing ? "SquareVideo" : "VideoButton")
+                Image(model.captureState == .writing ? "SquareVideo" : "VideoButton")
                     .resizable()
-                    .frame(width: (model.captureState == .capturing ? 32 : 50), height: (model.captureState == .capturing ? 32 : 50), alignment: .center)
+                    .frame(width: (model.captureState == .writing ? 32 : 50), height: (model.captureState == .writing ? 32 : 50), alignment: .center)
             }
         }
     }
