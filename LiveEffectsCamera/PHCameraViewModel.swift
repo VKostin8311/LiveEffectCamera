@@ -8,9 +8,7 @@
 import AVFoundation
 import Combine
 import CoreMotion
-import Foundation
 import SwiftUI
-import Metal
 import MetalKit
 
 //
@@ -36,7 +34,6 @@ class PHCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelega
     
     @Published var isRunning = false
    
-    @Published var isCapturing = false
     @Published var captureState = CaptureState.idle
     
     @Published var duration: Int = 0
@@ -52,8 +49,8 @@ class PHCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelega
     private var lastFrameTimeStamp: CMTime = .zero
     private var firstFrameTimeStamp: CMTime = .zero
     
-    var mtkView: MTKView?
-    var buffer: CMSampleBuffer?
+    private var mtkView: MTKView?
+    private var buffer: CMSampleBuffer?
     private var videoWriter: VideoWriter?
 
     let sessionQueue = DispatchQueue(label: "session", qos: .userInitiated, attributes: .concurrent, autoreleaseFrequency: .inherit)
@@ -68,7 +65,7 @@ class PHCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelega
     
     override init() {
         
-        guard let colorSpace = CGColorSpace.init(name: CGColorSpace.displayP3) else { fatalError() }
+        guard let colorSpace = CGColorSpace.init(name: CGColorSpace.displayP3_HLG) else { fatalError() }
         self.colorSpace = colorSpace
         self.device = MTLCreateSystemDefaultDevice()!
         self.commandQueue = self.device.makeCommandQueue()!
@@ -97,7 +94,6 @@ class PHCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelega
                 }
             }
             .store(in: &cancellable)
-        
         $micAuthStatus
             .sink { value in
                 switch value {
@@ -155,7 +151,7 @@ class PHCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelega
     }
     
     enum CaptureState {
-        case idle, start, starting, capturing, end, ending
+        case idle, capturing, ending
     }
     
     func getAvaliableBackDevices() -> [AVCaptureDevice.DeviceType] {
@@ -198,8 +194,6 @@ class PHCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelega
         
         return nil
     }
-    
-    
     
     func startNewSession(with device: AVCaptureDevice.DeviceType, in position: AVCaptureDevice.Position){
         
@@ -294,18 +288,17 @@ class PHCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelega
     func stopSession() {
         
         if self.session.isRunning {
-        
-            DispatchQueue.main.async {
-                self.isRunning = false
-                guard let buffer = self.buffer else { return }
-                if self.captureState == .capturing {
-                    DispatchQueue.main.async { self.captureState = .ending }
-                    self.videoWriter?.endWriting(at: CMSampleBufferGetPresentationTimeStamp(buffer)) { result in
-                        guard result != nil else { return }
-                        self.captureState = .idle
-                        self.videoWriter = nil
-                    }
+            
+            self.isRunning = false
+            if self.captureState == .capturing {
+                DispatchQueue.main.async { self.captureState = .ending }
+                
+                self.videoWriter?.endWriting() { result in
+                    guard result != nil else { return }
+                    self.captureState = .idle
+                    self.videoWriter = nil
                 }
+                
             }
             self.session.stopRunning()
             
@@ -339,7 +332,6 @@ class PHCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelega
         }
     }
     
-
     func capture() {
         guard let buffer = buffer else { return }
         let timeStamp = CMSampleBufferGetPresentationTimeStamp(buffer)
@@ -347,13 +339,15 @@ class PHCameraViewModel: NSObject, ObservableObject, AVCapturePhotoCaptureDelega
         if self.captureState == .capturing {
             DispatchQueue.main.async { self.captureState = .ending }
             print("STATE: ENDING")
-            self.videoWriter?.endWriting(at: timeStamp) { result in
+            
+            self.videoWriter?.endWriting() { result in
                 print("HANDLER")
                 guard result != nil else { return }
                 DispatchQueue.main.async { self.captureState = .idle }
                 self.videoWriter = nil
                 
             }
+            
         } else {
             
             let fileName = UUID().uuidString
@@ -491,7 +485,7 @@ class VideoWriter {
         }
     }
     
-    func endWriting(at timeStamp: CMTime, _ handler: @escaping (URL?) -> Void){
+    func endWriting( _ handler: @escaping (URL?) -> Void){
         
         guard videoInput.isReadyForMoreMediaData && audioInput.isReadyForMoreMediaData else {
             handler(nil)
@@ -507,8 +501,6 @@ class VideoWriter {
         audioInput.markAsFinished()
         print("MARKED AS FINISHED")
         
-        assetWriter.endSession(atSourceTime: timeStamp)
-        print("ENDED SESSION")
         assetWriter.finishWriting {
             if self.assetWriter.status == .completed {
                 print("✅ WRITER STATUS: COMPLETED")
@@ -525,9 +517,6 @@ class VideoWriter {
     func addVideoFrame(_ imageBuffer: CVImageBuffer, at timeStamp: CMTime) {
         if videoInput.isReadyForMoreMediaData {
             adaptor.append(imageBuffer, withPresentationTime: timeStamp)
-            print("DID ADD NEW IMAGE BUFFER")
-        } else {
-            print("⭕️")
         }
     }
 }

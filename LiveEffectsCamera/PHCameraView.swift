@@ -64,8 +64,6 @@ struct PHCameraView: View {
                 .padding(EdgeInsets(top: saInsets.top, leading: 0, bottom: 0, trailing: 20))
             }
             
-            
-            
             if isShowFIlters { filterPanel }
             
             VStack(alignment: .center, spacing: 0) {
