@@ -33,25 +33,24 @@ class PHCameraViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSam
     @Published var audioOut = AVCaptureAudioDataOutput()
     
     @Published var isRunning = false
-   
-    @Published var captureState = CaptureState.idle
-    
+    @Published var isWriting = false
     @Published var duration: Int = 0
     
     @Published var warmth: Float = 0
     @Published var gamma: Float = 0
     
     var cancellable: Set<AnyCancellable> = []
-    
     var vDevice = AVCaptureDevice.default(for: .video)!
+    var mtkView: MTKView?
     
     private var keyValueObservations = [NSKeyValueObservation]()
-    private var lastFrameTimeStamp: CMTime = .zero
-    private var firstFrameTimeStamp: CMTime = .zero
     
-    var mtkView: MTKView?
     private var buffer: CMSampleBuffer?
-    private var videoWriter: VideoWriter?
+    private var assetWriter: AVAssetWriter?
+    private var adaptor: AVAssetWriterInputPixelBufferAdaptor?
+    private var vInput: AVAssetWriterInput?
+    private var aInput: AVAssetWriterInput?
+    private var sessionAtSourceTime: CMTime?
 
     let sessionQueue = DispatchQueue(label: "session", qos: .userInitiated, attributes: .concurrent, autoreleaseFrequency: .inherit)
     let videoQueue = DispatchQueue(label: "video", qos: .userInitiated, attributes: .concurrent, autoreleaseFrequency: .workItem)
@@ -150,9 +149,6 @@ class PHCameraViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSam
         print("Deinit camera view model")
     }
     
-    enum CaptureState {
-        case idle, start, starting, writing, ending, end
-    }
     
     func getAvaliableBackDevices() -> [AVCaptureDevice.DeviceType] {
         
@@ -292,10 +288,7 @@ class PHCameraViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSam
             DispatchQueue.main.async {
                 self.isRunning = false
             }
-            if self.captureState == .writing {
-                DispatchQueue.main.async { self.captureState = .end }
-            }
-            
+                
             self.session.stopRunning()
         }
         
@@ -327,62 +320,90 @@ class PHCameraViewModel: NSObject, ObservableObject, AVCaptureVideoDataOutputSam
         }
     }
     
-    func capture() {
+    func setupWriter() {
         
-        if captureState == .writing {
-            DispatchQueue.main.async { self.captureState = .end }
+        let fileName = UUID().uuidString
+        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("\(fileName).mov")
+        
+        guard let vSettings = self.videoOut.recommendedVideoSettingsForAssetWriter(writingTo: .mov) else { return }
+        guard let aSettings = self.audioOut.recommendedAudioSettingsForAssetWriter(writingTo: .mov) else { return }
+        
+        do {
+            
+            self.assetWriter = try AVAssetWriter(url: url, fileType: AVFileType.mov)
+            
+            //Add video input
+            self.vInput = AVAssetWriterInput(mediaType: AVMediaType.video, outputSettings: vSettings)
+            self.vInput?.mediaTimeScale = CMTimeScale(bitPattern: 600)
+            self.vInput?.expectsMediaDataInRealTime = true
+            
+            guard vInput != nil else { return }
+            adaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: vInput!, sourcePixelBufferAttributes: nil)
+            if self.assetWriter?.canAdd(vInput!) == true { assetWriter?.add(vInput!) }
+            
+            //Add audio input
+            self.aInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: aSettings)
+            self.aInput?.expectsMediaDataInRealTime = true
+            
+            guard aInput != nil else { return }
+            if self.assetWriter?.canAdd(aInput!) == true { assetWriter?.add(aInput!) }
+            
+            self.assetWriter?.startWriting()
         }
-        
-        if captureState == .idle {
-            DispatchQueue.main.async { self.captureState = .start }
+        catch let error {
+            debugPrint(error.localizedDescription)
+        }
+    }
+    
+    func canWrite() -> Bool {
+        return isWriting && assetWriter != nil && assetWriter?.status == .writing
+    }
+    
+    func start() {
+        self.setupWriter()
+        guard !isWriting else { return }
+        isWriting = true
+        sessionAtSourceTime = nil
+    }
+    
+    func stop() {
+        guard isWriting else { return }
+        isWriting = false
+        self.vInput?.markAsFinished()
+        self.aInput?.markAsFinished()
+        assetWriter?.finishWriting {
+            self.sessionAtSourceTime = nil
+            guard let url = self.assetWriter?.outputURL else { return }
+            print(url)
+            self.assetWriter = nil
+            self.vInput = nil
+            self.aInput = nil
         }
     }
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        if self.captureState == .ending { return }
+        
+        guard CMSampleBufferDataIsReady(sampleBuffer) else { return }
         
         if connection == videoOut.connection(with: .video) {
             self.buffer = sampleBuffer
             self.mtkView?.draw()
         }
         
-        switch self.captureState {
-        case .start:
-            DispatchQueue.main.async { self.captureState = .starting }
-            let timeStamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
-            let fileName = UUID().uuidString
-            let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("\(fileName).mov")
-            guard let vSettings = self.videoOut.recommendedVideoSettingsForAssetWriter(writingTo: .mov) else { return }
-            guard let aSettings = self.audioOut.recommendedAudioSettingsForAssetWriter(writingTo: .mov) else { return }
-            do {
-                self.videoWriter = try VideoWriter(url, vSettings, self.orientation, aSettings, timeStamp.timescale)
-                
-                if self.videoWriter?.startWriting(at: timeStamp) == true {
-                    self.firstFrameTimeStamp = timeStamp
-                    DispatchQueue.main.async { self.captureState = .writing }
-                } else {
-                    print("Failed start writing")
-                }
-            } catch {
-                print(error)
-            }
-            
-        case .end:
-            DispatchQueue.main.async { self.captureState = .ending }
-            self.videoWriter?.endWriting() { result in
-                print("HANDLER")
-                guard result != nil else { return }
-                DispatchQueue.main.async { self.captureState = .idle }
-                self.videoWriter = nil
-                
-            }
-        case .writing:
-            let timestamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
-            DispatchQueue.main.async { self.duration = Int(timestamp.seconds - self.firstFrameTimeStamp.seconds) }
-            if connection == audioOut.connection(with: .audio) {
-                self.videoWriter?.addAudioSample(sampleBuffer)
-            }
-        default: return
+        guard canWrite() else { return }
+        
+        let timestamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
+        
+        
+        if sessionAtSourceTime == nil {
+            sessionAtSourceTime = timestamp
+            assetWriter?.startSession(atSourceTime: sessionAtSourceTime!)
+        }
+        
+        DispatchQueue.main.async { self.duration = Int(timestamp.seconds - self.sessionAtSourceTime!.seconds) }
+
+        if connection == audioOut.connection(with: .audio) && self.aInput?.isReadyForMoreMediaData == true {
+            self.aInput?.append(sampleBuffer)
         }
 
     }
@@ -416,9 +437,12 @@ extension PHCameraViewModel: MTKViewDelegate {
             if let output = filter.outputImage { image = output }
         }
         
-        if self.captureState == .writing {
+        if self.isWriting && self.assetWriter?.status == .writing {
             context.render(image, to: imageBuffer)
-            self.videoWriter?.addVideoFrame(imageBuffer, at: CMSampleBufferGetPresentationTimeStamp(buffer))
+            if self.vInput?.isReadyForMoreMediaData == true {
+                self.adaptor?.append(imageBuffer, withPresentationTime: CMSampleBufferGetPresentationTimeStamp(buffer))
+            }
+            
             image = CIImage(cvImageBuffer: imageBuffer)
         }
         let width = Int(view.drawableSize.width)
@@ -429,92 +453,5 @@ extension PHCameraViewModel: MTKViewDelegate {
         context.render(image, to: drawable.texture, commandBuffer: commandBuffer, bounds: image.extent, colorSpace: self.colorSpace)
         commandBuffer.present(drawable)
         commandBuffer.commit()
-    }
-}
-
-class VideoWriter {
-    
-    let assetWriter: AVAssetWriter
-    let videoInput: AVAssetWriterInput
-    let audioInput: AVAssetWriterInput
-    let adaptor: AVAssetWriterInputPixelBufferAdaptor
-    
-    var status: AVAssetWriter.Status = .unknown
-    
-    init(_ url: URL, _ vSettings: [String: Any], _ orientation: AVCaptureVideoOrientation, _ aSettings: [String: Any], _ timeScale: CMTimeScale) throws {
-        
-        videoInput = AVAssetWriterInput(mediaType: .video, outputSettings: vSettings)
-        videoInput.expectsMediaDataInRealTime = true
-        videoInput.mediaTimeScale = timeScale
-        switch orientation {
-        case .portraitUpsideDown: videoInput.transform = CGAffineTransform(rotationAngle: .pi)
-        case .landscapeRight: videoInput.transform = CGAffineTransform(rotationAngle: .pi*3/2)
-        case .landscapeLeft: videoInput.transform = CGAffineTransform(rotationAngle: .pi/2)
-        default: videoInput.transform = CGAffineTransform(rotationAngle: 0)
-        }
-        
-        adaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoInput, sourcePixelBufferAttributes: nil)
-        
-        audioInput = AVAssetWriterInput(mediaType: .audio, outputSettings: aSettings)
-        audioInput.expectsMediaDataInRealTime = true
-        
-        assetWriter = try AVAssetWriter(outputURL: url, fileType: .mov)
-        assetWriter.movieTimeScale = timeScale
-        
-        if assetWriter.canAdd(videoInput) { self.assetWriter.add(videoInput); print("Video Input is added")}
-        if assetWriter.canAdd(audioInput) { self.assetWriter.add(audioInput); print("Audio Input is added")}
-
-    }
-    
-    deinit {
-        print("DEINIT VIDEO WRITER")
-    }
-    
-    func startWriting(at timeStamp: CMTime) -> Bool {
-        if assetWriter.startWriting() {
-            if assetWriter.status == .writing {
-                self.assetWriter.startSession(atSourceTime: timeStamp)
-                return true
-            } else {
-                return false
-            }
-        } else {
-            return false
-        }
-    }
-    
-    func endWriting( _ handler: @escaping (URL?) -> Void){
-        
-        guard videoInput.isReadyForMoreMediaData && audioInput.isReadyForMoreMediaData else {
-            handler(nil)
-            return
-        }
-        
-        guard assetWriter.status == .writing else {
-            handler(nil)
-            return
-        }
-        
-        videoInput.markAsFinished()
-        audioInput.markAsFinished()
-        print("MARKED AS FINISHED")
-        
-        assetWriter.finishWriting {
-            if self.assetWriter.status == .completed {
-                print("✅ WRITER STATUS: COMPLETED")
-                handler(self.assetWriter.outputURL)
-                return
-            }
-        }
-    }
-    
-    func addAudioSample(_ buffer: CMSampleBuffer) {
-        if audioInput.isReadyForMoreMediaData { audioInput.append(buffer) }
-    }
-    
-    func addVideoFrame(_ imageBuffer: CVImageBuffer, at timeStamp: CMTime) {
-        if videoInput.isReadyForMoreMediaData {
-            adaptor.append(imageBuffer, withPresentationTime: timeStamp)
-        }
     }
 }
