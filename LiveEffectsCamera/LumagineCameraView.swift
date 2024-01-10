@@ -15,7 +15,7 @@ struct LumagineCameraView: View {
     
     @StateObject var camera = LumagineCameraViewModel()
     
-    let cubes = ["None", "BW-1", "BW-2"]
+    let cubes = ["None", "BW-1", "BW-2", "well-see", "smooth-sailing", "Zeke 39", "Zed 32", "You can do it", "Waves", "Vireo 37", "Urban cowboy", "Venom", "Neon 770", "NaturalBoost", "Nah"]
     
     var body: some View {
         ZStack(){
@@ -109,26 +109,6 @@ struct LumagineCameraView: View {
             .frame(width: 32, height: 32)
         }
     }
-    
-
-    func flashImage(_ mode: AVCaptureDevice.FlashMode) -> String {
-        switch mode {
-        case .on: return "bolt.fill"
-        case .auto: return "bolt.badge.a.fill"
-        case .off: return "bolt.slash.fill"
-        @unknown default:  fatalError("Unsupported flash mode")
-        }
-    }
-    
-    func torchImage(_ mode: AVCaptureDevice.TorchMode) -> String {
-        switch mode {
-        case .on: return "bolt.fill"
-        case .auto: return "bolt.badge.a.fill"
-        case .off: return "bolt.slash.fill"
-        @unknown default:  fatalError("Unsupported torch mode")
-        }
-    }
-        
     
 }
 

@@ -22,7 +22,7 @@ struct ContentView: View {
         }
         
         .fullScreenCover(isPresented: $showCamera) {
-            
+            LumagineCameraView()
         }
     }
 }

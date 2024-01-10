@@ -12,6 +12,19 @@
 		E7213E9D2B4DDC2E000D810A /* LumagineCameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7213E9A2B4DDC2E000D810A /* LumagineCameraView.swift */; };
 		E7213E9F2B4DDC68000D810A /* BW-1.data in Resources */ = {isa = PBXBuildFile; fileRef = E7213E9E2B4DDC68000D810A /* BW-1.data */; };
 		E7213EA12B4DDC9F000D810A /* BW-2.data in Resources */ = {isa = PBXBuildFile; fileRef = E7213EA02B4DDC9F000D810A /* BW-2.data */; };
+		E7213EAE2B4DDF82000D810A /* well-see.data in Resources */ = {isa = PBXBuildFile; fileRef = E7213EA22B4DDF81000D810A /* well-see.data */; };
+		E7213EAF2B4DDF82000D810A /* Urban cowboy.data in Resources */ = {isa = PBXBuildFile; fileRef = E7213EA32B4DDF81000D810A /* Urban cowboy.data */; };
+		E7213EB02B4DDF82000D810A /* You can do it.data in Resources */ = {isa = PBXBuildFile; fileRef = E7213EA42B4DDF81000D810A /* You can do it.data */; };
+		E7213EB12B4DDF82000D810A /* Venom.data in Resources */ = {isa = PBXBuildFile; fileRef = E7213EA52B4DDF81000D810A /* Venom.data */; };
+		E7213EB22B4DDF82000D810A /* Zed 32.data in Resources */ = {isa = PBXBuildFile; fileRef = E7213EA62B4DDF81000D810A /* Zed 32.data */; };
+		E7213EB32B4DDF82000D810A /* NaturalBoost.data in Resources */ = {isa = PBXBuildFile; fileRef = E7213EA72B4DDF81000D810A /* NaturalBoost.data */; };
+		E7213EB42B4DDF82000D810A /* Neon 770.data in Resources */ = {isa = PBXBuildFile; fileRef = E7213EA82B4DDF82000D810A /* Neon 770.data */; };
+		E7213EB52B4DDF82000D810A /* Vireo 37.data in Resources */ = {isa = PBXBuildFile; fileRef = E7213EA92B4DDF82000D810A /* Vireo 37.data */; };
+		E7213EB62B4DDF82000D810A /* Waves.data in Resources */ = {isa = PBXBuildFile; fileRef = E7213EAA2B4DDF82000D810A /* Waves.data */; };
+		E7213EB72B4DDF82000D810A /* smooth-sailing.data in Resources */ = {isa = PBXBuildFile; fileRef = E7213EAB2B4DDF82000D810A /* smooth-sailing.data */; };
+		E7213EB82B4DDF82000D810A /* Nah.data in Resources */ = {isa = PBXBuildFile; fileRef = E7213EAC2B4DDF82000D810A /* Nah.data */; };
+		E7213EB92B4DDF82000D810A /* Zeke 39.data in Resources */ = {isa = PBXBuildFile; fileRef = E7213EAD2B4DDF82000D810A /* Zeke 39.data */; };
+		E7213EBB2B4DDFF6000D810A /* pixellate.metal in Sources */ = {isa = PBXBuildFile; fileRef = E7213EBA2B4DDFF6000D810A /* pixellate.metal */; };
 		E7A85DE3296DC5C300A7CED7 /* LiveEffectsCameraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7A85DE2296DC5C300A7CED7 /* LiveEffectsCameraApp.swift */; };
 		E7A85DE5296DC5C300A7CED7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7A85DE4296DC5C300A7CED7 /* ContentView.swift */; };
 		E7A85DE7296DC5C500A7CED7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E7A85DE6296DC5C500A7CED7 /* Assets.xcassets */; };
@@ -24,6 +37,19 @@
 		E7213E9A2B4DDC2E000D810A /* LumagineCameraView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LumagineCameraView.swift; sourceTree = "<group>"; };
 		E7213E9E2B4DDC68000D810A /* BW-1.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = "BW-1.data"; sourceTree = "<group>"; };
 		E7213EA02B4DDC9F000D810A /* BW-2.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = "BW-2.data"; sourceTree = "<group>"; };
+		E7213EA22B4DDF81000D810A /* well-see.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = "well-see.data"; sourceTree = "<group>"; };
+		E7213EA32B4DDF81000D810A /* Urban cowboy.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Urban cowboy.data"; sourceTree = "<group>"; };
+		E7213EA42B4DDF81000D810A /* You can do it.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = "You can do it.data"; sourceTree = "<group>"; };
+		E7213EA52B4DDF81000D810A /* Venom.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = Venom.data; sourceTree = "<group>"; };
+		E7213EA62B4DDF81000D810A /* Zed 32.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Zed 32.data"; sourceTree = "<group>"; };
+		E7213EA72B4DDF81000D810A /* NaturalBoost.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = NaturalBoost.data; sourceTree = "<group>"; };
+		E7213EA82B4DDF82000D810A /* Neon 770.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Neon 770.data"; sourceTree = "<group>"; };
+		E7213EA92B4DDF82000D810A /* Vireo 37.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Vireo 37.data"; sourceTree = "<group>"; };
+		E7213EAA2B4DDF82000D810A /* Waves.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = Waves.data; sourceTree = "<group>"; };
+		E7213EAB2B4DDF82000D810A /* smooth-sailing.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = "smooth-sailing.data"; sourceTree = "<group>"; };
+		E7213EAC2B4DDF82000D810A /* Nah.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = Nah.data; sourceTree = "<group>"; };
+		E7213EAD2B4DDF82000D810A /* Zeke 39.data */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Zeke 39.data"; sourceTree = "<group>"; };
+		E7213EBA2B4DDFF6000D810A /* pixellate.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = pixellate.metal; sourceTree = "<group>"; };
 		E7A85DDF296DC5C300A7CED7 /* LiveEffectsCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LiveEffectsCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E7A85DE2296DC5C300A7CED7 /* LiveEffectsCameraApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveEffectsCameraApp.swift; sourceTree = "<group>"; };
 		E7A85DE4296DC5C300A7CED7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -66,8 +92,21 @@
 				E7213E982B4DDC2E000D810A /* LumagineCameraPreview.swift */,
 				E7213E9A2B4DDC2E000D810A /* LumagineCameraView.swift */,
 				E7213E992B4DDC2E000D810A /* LumagineCameraViewModel.swift */,
+				E7213EBA2B4DDFF6000D810A /* pixellate.metal */,
 				E7213E9E2B4DDC68000D810A /* BW-1.data */,
 				E7213EA02B4DDC9F000D810A /* BW-2.data */,
+				E7213EAC2B4DDF82000D810A /* Nah.data */,
+				E7213EA72B4DDF81000D810A /* NaturalBoost.data */,
+				E7213EA82B4DDF82000D810A /* Neon 770.data */,
+				E7213EAB2B4DDF82000D810A /* smooth-sailing.data */,
+				E7213EA32B4DDF81000D810A /* Urban cowboy.data */,
+				E7213EA52B4DDF81000D810A /* Venom.data */,
+				E7213EA92B4DDF82000D810A /* Vireo 37.data */,
+				E7213EAA2B4DDF82000D810A /* Waves.data */,
+				E7213EA22B4DDF81000D810A /* well-see.data */,
+				E7213EA42B4DDF81000D810A /* You can do it.data */,
+				E7213EA62B4DDF81000D810A /* Zed 32.data */,
+				E7213EAD2B4DDF82000D810A /* Zeke 39.data */,
 				E7A85DE6296DC5C500A7CED7 /* Assets.xcassets */,
 				E7A85DE8296DC5C500A7CED7 /* Preview Content */,
 			);
@@ -141,9 +180,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				E7A85DEA296DC5C500A7CED7 /* Preview Assets.xcassets in Resources */,
+				E7213EB02B4DDF82000D810A /* You can do it.data in Resources */,
 				E7213EA12B4DDC9F000D810A /* BW-2.data in Resources */,
+				E7213EB82B4DDF82000D810A /* Nah.data in Resources */,
+				E7213EB42B4DDF82000D810A /* Neon 770.data in Resources */,
+				E7213EB52B4DDF82000D810A /* Vireo 37.data in Resources */,
+				E7213EB72B4DDF82000D810A /* smooth-sailing.data in Resources */,
+				E7213EAF2B4DDF82000D810A /* Urban cowboy.data in Resources */,
+				E7213EB22B4DDF82000D810A /* Zed 32.data in Resources */,
+				E7213EB32B4DDF82000D810A /* NaturalBoost.data in Resources */,
+				E7213EB62B4DDF82000D810A /* Waves.data in Resources */,
 				E7213E9F2B4DDC68000D810A /* BW-1.data in Resources */,
+				E7213EAE2B4DDF82000D810A /* well-see.data in Resources */,
 				E7A85DE7296DC5C500A7CED7 /* Assets.xcassets in Resources */,
+				E7213EB12B4DDF82000D810A /* Venom.data in Resources */,
+				E7213EB92B4DDF82000D810A /* Zeke 39.data in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -158,6 +209,7 @@
 				E7213E9D2B4DDC2E000D810A /* LumagineCameraView.swift in Sources */,
 				E7A85DE3296DC5C300A7CED7 /* LiveEffectsCameraApp.swift in Sources */,
 				E7213E9B2B4DDC2E000D810A /* LumagineCameraPreview.swift in Sources */,
+				E7213EBB2B4DDFF6000D810A /* pixellate.metal in Sources */,
 				E7213E9C2B4DDC2E000D810A /* LumagineCameraViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
