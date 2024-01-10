@@ -87,7 +87,7 @@ class LumagineCameraViewModel: NSObject, ObservableObject {
         self.commandQueue = commandQueue
         
         guard let library = mtlDevice.makeDefaultLibrary() else { fatalError("Could not create Metal Library") }
-        guard let function = library.makeFunction(name: "pixellateKernel") else { fatalError("Unable to create gpu kernel") }
+        guard let function = library.makeFunction(name: "cameraKernel") else { fatalError("Unable to create gpu kernel") }
         do {
             self.computePipelineState = try self.mtlDevice.makeComputePipelineState(function: function)
         } catch {

@@ -9,8 +9,7 @@
 using namespace metal;
 
 
-
-kernel void pixellateKernel(texture2d<half, access::read_write> lumaTexture [[ texture(0) ]],
+kernel void cameraKernel(texture2d<half, access::read_write> lumaTexture [[ texture(0) ]],
                             texture2d<half, access::read_write> chromaTexture [[ texture(1) ]],
                             texture2d<half, access::write> presentTexture [[ texture(2) ]],
                             constant uint& lutSize [[ buffer(0) ]],
