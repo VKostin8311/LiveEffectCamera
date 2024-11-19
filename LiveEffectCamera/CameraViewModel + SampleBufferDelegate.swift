@@ -34,7 +34,11 @@ extension CameraViewModel: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptu
                     
                     DispatchQueue.main.async { self.focusImage = image }
                 }
-                self.focusImageVisibleSeconds -= timestamp.seconds
+                
+                
+                self.focusImageVisibleSeconds -= self.activeDevice?.activeVideoMinFrameDuration.seconds ?? 0
+                
+                
             } else if self.focusImage != nil {
                 DispatchQueue.main.async { self.focusImage = nil }
             }

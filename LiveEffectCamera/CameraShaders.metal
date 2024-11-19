@@ -68,9 +68,11 @@ float perlinNoise(float2 uv, float iTime) {
 }
 
 
-kernel void cameraKernel(texture2d<float, access::read_write> lumaTexture [[ texture(0) ]],
-                         texture2d<float, access::read_write> chromaTexture [[ texture(1) ]],
+kernel void cameraKernel(texture2d<float, access::read> lumaTexture [[ texture(0) ]],
+                         texture2d<float, access::read> chromaTexture [[ texture(1) ]],
                          texture2d<float, access::write> presentTexture [[ texture(2) ]],
+                         texture2d<float, access::write> outLuma [[ texture(3) ]],
+                         texture2d<float, access::write> outChroma [[ texture(4) ]],
                          constant uint& lutSize [[ buffer(0) ]],
                          device float4* lutData [[ buffer(1) ]],
                          constant float *inputNoise [[ buffer(2) ]],
@@ -131,10 +133,9 @@ kernel void cameraKernel(texture2d<float, access::read_write> lumaTexture [[ tex
      
     float3 result = rgbToYCbCrMatrix * rgb;
     result.yz += float2(0.5, 0.5);
-    
-    lumaTexture.write(result.x, gid);
-    chromaTexture.write(float4(result.y, result.z, 1.0, 1.0), uint2(gid.x/2, gid.y/2));
-    
+     
     presentTexture.write(float4(rgb, 1.0), gid);
+    outLuma.write(result.x, gid);
+    outChroma.write(float4(result.y, result.z, 1.0, 1.0), uint2(gid.x/2, gid.y/2));
 
 }
