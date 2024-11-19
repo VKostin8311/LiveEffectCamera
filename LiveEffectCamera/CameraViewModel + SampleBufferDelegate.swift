@@ -46,8 +46,6 @@ extension CameraViewModel: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptu
         
         guard canWrite() else { return }
         
-        //guard let activeDevice else { return }
-         
         if let sessionAtSourceTime = sessionAtSourceTime {
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }

@@ -464,23 +464,19 @@ import VideoToolbox
         }
     }
      
-    func setupWriter(for range: VideoDynamicRange, with format: VideoFormat) {
+    func setupWriter(for range: VideoDynamicRange) {
         
         guard let activeDevice = self.activeDevice else { return }
 
-        var format = format
-        
         guard let width = hardware.videoOut.videoSettings["Width"] as? Int else { return }
         guard let height = hardware.videoOut.videoSettings["Height"] as? Int else { return }
         let frameRate = Int(1/activeDevice.activeVideoMinFrameDuration.seconds)
         
         print("🔵 Frame rate: \(frameRate)")
         
-        if height > 2100 && frameRate > 30 { format = .hevc }
+        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("\(UUID().uuidString).MOV")
         
-        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("\(UUID().uuidString).\(format == .mp4 ? "MP4" : "MOV")")
-        
-        guard var vSettings = self.hardware.videoOut.recommendedVideoSettingsForAssetWriter(writingTo: format == .mp4 ? .mp4 : .mov) else { return }
+        guard var vSettings = self.hardware.videoOut.recommendedVideoSettingsForAssetWriter(writingTo: .mov) else { return }
     
         var compressionSettings: [String: Any] = vSettings["AVVideoCompressionPropertiesKey"] as! [String: Any]
         compressionSettings["ExpectedFrameRate"] = frameRate
@@ -510,7 +506,7 @@ import VideoToolbox
         
         do {
             
-            self.assetWriter = try AVAssetWriter(url: url, fileType: format == .mp4 ?  AVFileType.mp4 : AVFileType.mov)
+            self.assetWriter = try AVAssetWriter(url: url, fileType: AVFileType.mov)
             self.assetWriter?.metadata = self.makeAVMetaData(with: location)
             
             print(self.assetWriter as Any)
@@ -529,16 +525,16 @@ import VideoToolbox
             guard vInput != nil else { return }
             
             let sourcePixelBufferAttributes:[String:AnyObject] = [
-                kCVPixelBufferPixelFormatTypeKey as String:NSNumber(value: Int32(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange)),
-                kCVPixelBufferWidthKey as String:NSNumber(value: width),
-                kCVPixelBufferHeightKey as String:NSNumber(value: height)
+                kCVPixelBufferPixelFormatTypeKey as String: NSNumber(value: Int32(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange)),
+                kCVPixelBufferWidthKey as String: NSNumber(value: width),
+                kCVPixelBufferHeightKey as String: NSNumber(value: height)
             ]
             
             adaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: vInput!, sourcePixelBufferAttributes: sourcePixelBufferAttributes)
             if self.assetWriter?.canAdd(vInput!) == true { assetWriter?.add(vInput!) }
             
             //Add audio input
-            if let aSettings = self.hardware.audioOut.recommendedAudioSettingsForAssetWriter(writingTo: format == .mp4 ? .mp4 : .mov) {
+            if let aSettings = self.hardware.audioOut.recommendedAudioSettingsForAssetWriter(writingTo: .mov) {
                 
                 self.aInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: aSettings)
                 self.aInput?.expectsMediaDataInRealTime = true
@@ -562,7 +558,7 @@ import VideoToolbox
     func startWriting() {
         hardware.writeQueue.async {
             
-            self.setupWriter(for: .sdr, with: .mp4)
+            self.setupWriter(for: .sdr)
             
             guard !self.isWriting else { return }
             

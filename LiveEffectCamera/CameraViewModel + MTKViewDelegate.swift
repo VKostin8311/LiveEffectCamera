@@ -71,7 +71,7 @@ extension CameraViewModel: MTKViewDelegate {
                 else { return }
                 
                 var pixelBuffer: CVPixelBuffer?
-                let pixelBufferStatus = CVPixelBufferPoolCreatePixelBuffer(nil, adaptor.pixelBufferPool!, &pixelBuffer)
+                let pixelBufferStatus = CVPixelBufferPoolCreatePixelBuffer(kCFAllocatorDefault, adaptor.pixelBufferPool!, &pixelBuffer)
                 
                 guard let pixelBuffer = pixelBuffer, pixelBufferStatus == kCVReturnSuccess else { return }
                 
@@ -80,7 +80,8 @@ extension CameraViewModel: MTKViewDelegate {
                 let lumaBytesPerRow = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 0)
                 let chromaBytesPerRow = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 1)
                 
-                guard let liminanceBytes = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 0), let chrominanceBytes = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 1)
+                guard let liminanceBytes = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 0),
+                      let chrominanceBytes = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 1)
                 else { return }
                 
                 inputLuminance.getBytes(liminanceBytes, bytesPerRow: lumaBytesPerRow, from: MTLRegionMake2D(0, 0, inputLuminance.width, inputLuminance.height), mipmapLevel: 0)
