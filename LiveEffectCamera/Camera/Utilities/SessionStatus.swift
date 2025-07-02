@@ -11,7 +11,7 @@ struct SessionStatus: Codable, Equatable {
 	
 	var position: CameraPosition = .back
 	var backDevice: BackDeviceType = .wideAngleCamera
-	var frameRate: VideoFrameRate = .extra
+	var frameRate: VideoFrameRate = .high
 	var videoResolution: VideoResolution = .fullHD
 	var isVideoMirrored: Bool = true
 }
