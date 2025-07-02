@@ -73,7 +73,7 @@ struct CameraView: View {
 					if camera.duration > 0 {
 						await camera.stopWriting()
 					} else {
-						await camera.startWriting(with: nil)
+						await camera.startWriting(with: location.currentLocation)
 					}
 				}
 			}
